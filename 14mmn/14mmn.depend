@@ -2,20 +2,20 @@
 1592245478 source:c:\users\shiva-alba\desktop\14mmn\second_read.c
 	"assembler.h"
 
-1595874302 c:\users\shiva-alba\desktop\14mmn\assembler.h
+1596478365 c:\users\shiva-alba\desktop\14mmn\assembler.h
 	<stdio.h>
 	<string.h>
 	<stdlib.h>
 	<ctype.h>
 	<stdarg.h>
 
-1595777024 source:c:\users\shiva-alba\desktop\14mmn\utils.c
+1596478730 source:c:\users\shiva-alba\desktop\14mmn\utils.c
 	"assembler.h"
 
-1595874335 source:c:\users\shiva-alba\desktop\14mmn\first_read.c
+1596478832 source:c:\users\shiva-alba\desktop\14mmn\first_read.c
 	"assembler.h"
 
-1595874245 source:c:\users\shiva-alba\desktop\14mmn\linked_list.c
+1596478730 source:c:\users\shiva-alba\desktop\14mmn\linked_list.c
 	"assembler.h"
 
 1595706365 source:c:\users\shiva-alba\desktop\14mmn\main.c

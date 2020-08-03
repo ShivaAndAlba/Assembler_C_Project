@@ -31,6 +31,7 @@ line_node *create_line_node(line_node **head)
     tail->num_tokenz = 0;
     tail->tokenz     = NULL;
     tail->next_node  = NULL;
+    tail->tok_idx = 0;
     return tail;
 }
 
@@ -50,7 +51,7 @@ void create_label_node(line_node *curr_line_node)
     curr_line_node->label = new_node;
 }
 
-img_node *create_data_node(int DC, int tok_chr)
+void create_data_node(int *DC, int tok_chr)
 {
     img_node *tail = g_data_head;
     img_node *new_node = malloc(sizeof(img_node));
@@ -75,11 +76,55 @@ img_node *create_data_node(int DC, int tok_chr)
         tail->next_node = new_node;
         tail = tail->next_node;
     }
-    tail->address   = DC;
+    tail->address   = (*DC);
     tail->data      = tok_chr;
     tail->next_node = NULL;
+    (*DC)++;
+}
 
-    return tail;
+void insert_string2data_list(int *DC, line_node *curr_line_node)
+{
+    char *p_token = curr_line_node->tokenz[curr_line_node->tok_idx];
+
+    while (*p_token != '\0')
+    {
+        if(*p_token != '"')
+        {
+            if (isalpha(*p_token))
+            {
+                create_data_node(DC, (int)*p_token);
+            }
+            else
+            {
+                curr_line_node->error_flag = TRUE;
+                print_error(curr_line_node->line_num, "string data type allows only A-Z, a-z chars.");
+            }
+        }
+        p_token++;
+    }
+    create_data_node(DC, '\0');
+}
+
+void insert_int2data_list(int *DC, line_node *curr_line_node)
+{
+    char *p_token = curr_line_node->tokenz[curr_line_node->tok_idx];
+
+    p_token = strtok(p_token, ",");
+
+    while(p_token != NULL)
+    {
+        if (isdigit(*p_token) || *p_token == '-' || *p_token == '+')
+        {
+            create_data_node(DC, atoi(p_token));
+            (*DC)++;
+        }
+        else if (isalpha(*p_token))
+        {
+            curr_line_node->error_flag = TRUE;
+            print_error(curr_line_node->line_num, "integer data type allows only 16,777,214 to -16,777,214, can be with '+' symbol.");
+        }
+        p_token = strtok(NULL, ",");
+    }
 }
 
 img_node *create_inst_node()

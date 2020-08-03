@@ -35,6 +35,7 @@ typedef struct label{
 typedef struct line{
     int line_num;           /* number of line in source code                        */
     char **tokenz;          /* array of pointer containing all tokens from a line   */
+    int tok_idx;            /* index to current token being processed               */
     int num_tokenz;         /* number of tokens in array                            */
     bool label_flag;        /* TRUE if label declaration                            */
     label_node *label;      /* pointer to label struct                              */
@@ -59,15 +60,18 @@ void first_read(FILE *file, line_node **line_head_list, int *error_cout, int *li
 
 
 /*-- Utilities  --*/
+bool clear_q_marks(char **p_token);
 char *get_label(line_node *curr_line_node);
-bool is_data_or_string(char *token);
-bool is_label_decleration(line_node *curr_line_node, int index);
+bool is_data_or_string(line_node *curr_line_node);
+bool is_label_decleration(line_node *curr_line_node);
 void print_error(int line_num, const char *format, ...);
 void load_file(char *file_name);
 FILE *file_open(char *file_name, char *file_type, char *mode);
 
 /*-- Linked_List --*/
-img_node *create_data_node(int DC, int tok_chr);
+void insert_int2data_list(int *DC, line_node *curr_line_node);
+void insert_string2data_list(int *DC, line_node *curr_line_node);
+void create_data_node(int *DC, int tok_chr);
 line_node *create_line_node(line_node **head);
 void create_label_node(line_node *);
 bool next_node(line_node *curr_node);

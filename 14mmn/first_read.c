@@ -1,4 +1,5 @@
 #include "assembler.h"
+
 /** for debug **/
 void print_data_list()
 {
@@ -57,84 +58,20 @@ void print_curr_label_node(label_node *curr_node)
     printf("\n");
 }
 
-void pars_data(line_node *curr_line_node, int i, int *DC)
+void pars_data(line_node *curr_line_node, int *DC)
 {
+    char *token_p = curr_line_node->tokenz[curr_line_node->tok_idx];
 
-    if (strstr(curr_line_node->tokenz[i], ".string"))
+    if (strstr(token_p, ".string"))
     {
-        char **token = curr_line_node->tokenz;
-        i++;
-
-        while(i<curr_line_node->num_tokenz)
-        {
-            char *p_token = token[i];
-
-            while (*p_token!= '\0')
-            {
-                if (*p_token != '"')
-                {
-                    printf("%c", *p_token);
-                    if (isalpha(*p_token))
-                    {
-                        create_data_node(*DC, (int)*p_token);
-                        (*DC)++;
-                    }
-                    else
-                    {
-                        curr_line_node->error_flag = TRUE;
-                        print_error(curr_line_node->line_num, "string data type allows only A-Z, a-z chars.");
-                        return;
-                    }
-                }
-                (p_token)++;
-            }
-            i++;
-        }
-        return;
+        curr_line_node->tok_idx++;
+        insert_string2data_list(DC, curr_line_node);
     }
-
-    if(strstr(curr_line_node->tokenz[i], ".data"))
+    if (strstr(token_p, ".data"))
     {
-        i++;
-
-        while(i<curr_line_node->num_tokenz)
-        {
-            char *p_token;
-            char *token;
-
-            token = malloc(strlen(curr_line_node->tokenz[i]) * sizeof(char));
-            strcpy(token,curr_line_node->tokenz[i]);
-            p_token = strtok(token,",");
-
-            while (p_token != NULL)
-            {
-                printf("%c", *p_token);
-                if (isdigit(*p_token) || ispunct(*p_token))
-                {
-                    create_data_node(*DC, atoi(p_token));
-                    (*DC)++;
-                }
-                else
-                {
-                    curr_line_node->error_flag = TRUE;
-                    print_error(curr_line_node->line_num, "integer data type allows only 16,777,214 to -16,777,214.");
-                    return;
-                }
-                p_token = strtok(NULL, ",");
-
-            }
-            /*free(token);*/
-            i++;
-        }
-        return;
+        curr_line_node->tok_idx++;
+        insert_int2data_list(DC, curr_line_node);
     }
-
-    while (curr_line_node->num_tokenz > i)
-    {
-        (*DC)++;
-        i++;
-    }
-    (*DC)++;
 }
 
 
@@ -147,6 +84,8 @@ void insert_label(line_node *curr_line_node, char *type, int *DC)
     label_str = get_label(curr_line_node);
     curr_label_node->label = label_str;
     curr_label_node->dirc_type = type;
+
+    curr_line_node->tok_idx++;
 }
 
 
@@ -159,6 +98,7 @@ line_node *insert_set2line_list(line_node **line_node_head, int *line_count, cha
     new_line_node->num_tokenz   = (*token_count);
     new_line_node->line_num     = (*line_count);
     new_line_node->tokenz       = (*token_set);
+    new_line_node->tok_idx   = 0;
 
     return new_line_node;
 }
@@ -219,7 +159,6 @@ void tokenize_line(char ***token_set, char *tmp_line, int *tok_count)
         token = strtok(NULL, delims);
         (*tok_count)++;
     }
-
 }
 
 bool is_comment_empty(char *tmp_line, int *line_count)
@@ -263,10 +202,8 @@ bool is_comment_empty(char *tmp_line, int *line_count)
 void line_parser(line_node **line_list_head, char *tmp_line, int *line_count, int *error_count, int *IC, int *DC)
 {
     char **token_set = NULL;
-    int token_count = 0, i;
+    int token_count = 0;
     line_node *curr_line_node;
-
-    char *directive=NULL;
 
     if(is_comment_empty(tmp_line, line_count))
     {
@@ -276,43 +213,43 @@ void line_parser(line_node **line_list_head, char *tmp_line, int *line_count, in
     tokenize_line(&token_set, tmp_line, &token_count);
     curr_line_node = insert_set2line_list(line_list_head, line_count, &token_set, &token_count);
 
-    for(i=0 ; i<curr_line_node->num_tokenz ; i++)
+
+    if (is_label_decleration(curr_line_node))
     {
-        if (is_label_decleration(curr_line_node, i))
-        {
-            curr_line_node->label_flag = TRUE;
-            continue;
-        }
-
-        if (is_data_or_string(curr_line_node->tokenz[i]))
-        {
-            if(curr_line_node->label_flag)
-            {
-                create_label_node(curr_line_node);
-                insert_label(curr_line_node, "data", DC);
-                pars_data(curr_line_node, i, DC);
-
-                print_curr_line_node(curr_line_node);
-                print_curr_label_node(curr_line_node->label);
-
-
-                return;
-            }
-        }
-        else if ((directive = strstr(curr_line_node->tokenz[i], ".extern")))
-        {
-            return;
-        }
-        else if ((directive = strstr(curr_line_node->tokenz[i], ".entry")))
-        {
-            /*add to external table*/
-        }
-        else
-        {
-        /*pars instructions here*/
-        }
-
+        curr_line_node->label_flag = TRUE;
     }
+
+    if (is_data_or_string(curr_line_node))
+    {
+        if(curr_line_node->label_flag)
+        {
+            create_label_node(curr_line_node);
+            insert_label(curr_line_node, "data", DC);
+
+            print_curr_label_node(curr_line_node->label);
+        }
+
+        pars_data(curr_line_node, DC);
+
+        print_curr_line_node(curr_line_node);
+
+        return;
+    }
+
+    else if (0) /* is extern*/
+    {
+        return;
+    }
+    else if (0) /* is entry */
+    {
+        /*add to external table*/
+    }
+    else
+    {
+    /*pars instructions here*/
+    }
+
+
 
         /*  debug   */
     print_curr_line_node(curr_line_node);
