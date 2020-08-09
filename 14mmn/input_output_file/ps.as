@@ -18,8 +18,14 @@ LOOP: 	pnr #48
 		jmp &LOOP
 		add L3,L3
 END: 	stop
-STR: 	.string "abcd"
-LIST:	.data 6,-9
+STR1: 	.string "abcd"
+
+; this is a ilegal string
+STR2: 	.string "a1c\"
+
+LIST1:	.data 6, -9
+
+LIST2:	.data a,-&
 		.data -100
 K:		.data 31
 .extern L3

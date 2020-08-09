@@ -10,6 +10,10 @@
 /*-- Macros -- */
 #define TRUE 1
 #define FALSE 0
+#define COMMAND_LINE        0
+#define DATA_STRING_DIRC    1
+#define ENTRY_DIRC          2
+#define EXTERN_DIRC         3
 
 /* -- Constants -- */
 #define MAX_LINE_LEN 82
@@ -62,7 +66,7 @@ void first_read(FILE *file, line_node **line_head_list, int *error_cout, int *li
 /*-- Utilities  --*/
 bool clear_q_marks(char **p_token);
 char *get_label(line_node *curr_line_node);
-bool is_data_or_string(line_node *curr_line_node);
+int dirc_type(line_node *curr_line_node);
 bool is_label_decleration(line_node *curr_line_node);
 void print_error(int line_num, const char *format, ...);
 void load_file(char *file_name);

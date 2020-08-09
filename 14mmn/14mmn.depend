@@ -21,3 +21,25 @@
 1595706365 source:c:\users\shiva-alba\desktop\14mmn\main.c
 	"assembler.h"
 
+1596978168 source:c:\users\shiva-alba\desktop\14mmn_git\shivaalbaproj\14mmn\first_read.c
+	"assembler.h"
+
+1596885420 c:\users\shiva-alba\desktop\14mmn_git\shivaalbaproj\14mmn\assembler.h
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	<ctype.h>
+	<stdarg.h>
+
+1596977425 source:c:\users\shiva-alba\desktop\14mmn_git\shivaalbaproj\14mmn\linked_list.c
+	"assembler.h"
+
+1595706365 source:c:\users\shiva-alba\desktop\14mmn_git\shivaalbaproj\14mmn\main.c
+	"assembler.h"
+
+1592245478 source:c:\users\shiva-alba\desktop\14mmn_git\shivaalbaproj\14mmn\second_read.c
+	"assembler.h"
+
+1596894295 source:c:\users\shiva-alba\desktop\14mmn_git\shivaalbaproj\14mmn\utils.c
+	"assembler.h"
+

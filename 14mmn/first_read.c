@@ -67,7 +67,7 @@ void pars_data(line_node *curr_line_node, int *DC)
         curr_line_node->tok_idx++;
         insert_string2data_list(DC, curr_line_node);
     }
-    if (strstr(token_p, ".data"))
+    else if (strstr(token_p, ".data"))
     {
         curr_line_node->tok_idx++;
         insert_int2data_list(DC, curr_line_node);
@@ -75,13 +75,19 @@ void pars_data(line_node *curr_line_node, int *DC)
 }
 
 
-void insert_label(line_node *curr_line_node, char *type, int *DC)
+void insert_label(line_node *curr_line_node, char *type, int DC, bool extern_entry)
 {
     label_node *curr_label_node = curr_line_node->label;
     char *label_str;
+    int tok_idx = curr_line_node->tok_idx;
 
-    curr_label_node->address = *DC;
-    label_str = get_label(curr_line_node);
+    curr_label_node->address = DC;
+    if (!extern_entry)
+        label_str = get_label(curr_line_node);
+    else
+    {
+        label_str = curr_line_node->tokenz[++tok_idx];
+    }
     curr_label_node->label = label_str;
     curr_label_node->dirc_type = type;
 
@@ -98,7 +104,7 @@ line_node *insert_set2line_list(line_node **line_node_head, int *line_count, cha
     new_line_node->num_tokenz   = (*token_count);
     new_line_node->line_num     = (*line_count);
     new_line_node->tokenz       = (*token_set);
-    new_line_node->tok_idx   = 0;
+    new_line_node->tok_idx      = 0;
 
     return new_line_node;
 }
@@ -146,7 +152,7 @@ void insert_token2set(char *token, char ***token_set, int *tok_count, int *tok_s
 void tokenize_line(char ***token_set, char *tmp_line, int *tok_count)
 {
     char *token;
-    char *delims = " \t\n";
+    char *delims = " \t\n,";
     int tok_set_size=0;
 
     *tok_count=0;
@@ -213,43 +219,54 @@ void line_parser(line_node **line_list_head, char *tmp_line, int *line_count, in
     tokenize_line(&token_set, tmp_line, &token_count);
     curr_line_node = insert_set2line_list(line_list_head, line_count, &token_set, &token_count);
 
-
     if (is_label_decleration(curr_line_node))
     {
         curr_line_node->label_flag = TRUE;
     }
 
-    if (is_data_or_string(curr_line_node))
+
+    switch (dirc_type(curr_line_node))
     {
-        if(curr_line_node->label_flag)
-        {
+        case DATA_STRING_DIRC:
+            if(curr_line_node->label_flag)
+            {
+                create_label_node(curr_line_node);
+                insert_label(curr_line_node, "data", *DC, FALSE);
+
+                    /* debug */
+                printf("\n");
+                print_curr_label_node(curr_line_node->label);
+                printf("\n");
+            }
+
+            pars_data(curr_line_node, DC);
+
+            /* debug */
+            printf("\n");
+            print_curr_line_node(curr_line_node);
+            printf("\n");
+
+            *error_count =+ curr_line_node->error_flag;
+            return;
+
+        case ENTRY_DIRC:
+            return;
+
+        case EXTERN_DIRC:
             create_label_node(curr_line_node);
-            insert_label(curr_line_node, "data", DC);
+            insert_label(curr_line_node, "extern", 0, TRUE);
 
+                        /* debug */
+            printf("\n");
+            print_curr_line_node(curr_line_node);
             print_curr_label_node(curr_line_node->label);
-        }
+            printf("\n");
+            return;
 
-        pars_data(curr_line_node, DC);
+        case COMMAND_LINE:
+            break;
 
-        print_curr_line_node(curr_line_node);
-
-        return;
     }
-
-    else if (0) /* is extern*/
-    {
-        return;
-    }
-    else if (0) /* is entry */
-    {
-        /*add to external table*/
-    }
-    else
-    {
-    /*pars instructions here*/
-    }
-
-
 
         /*  debug   */
     print_curr_line_node(curr_line_node);
@@ -316,12 +333,6 @@ void first_read(FILE *file, line_node **line_list_head, int *error_count, int *l
 
             line_parser(line_list_head, tmp_line, line_count, error_count, IC, DC);
 
-            /* head is prob error count important
-            if ( line_list_head->error_flag)
-            {
-                ++(*error_count);
-            }
-            */
         }
         else if(!feof(file))
         {
@@ -330,6 +341,4 @@ void first_read(FILE *file, line_node **line_list_head, int *error_count, int *l
             ++(*error_count);
         }
     }
-
 }
-

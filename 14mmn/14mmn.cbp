@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="C:\Users\shiva-alba\Desktop\14mmn\input_output_file\ps.as" />
+				<Option parameters="C:\Users\shiva-alba\Desktop\14mmn_git\ShivaAlbaProj\14mmn\input_output_file\ps.as" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>

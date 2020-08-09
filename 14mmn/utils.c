@@ -1,9 +1,8 @@
 #include "assembler.h"
 
-bool is_data_or_string(line_node *curr_line_node)
+int dirc_type(line_node *curr_line_node)
 {
-    int i,j;
-    char *dirc_type[3] = {".data", ".string", NULL};
+    int j;
     char *token;
 
     token = curr_line_node->tokenz[0];
@@ -11,16 +10,21 @@ bool is_data_or_string(line_node *curr_line_node)
     for (j=0 ; j<curr_line_node->num_tokenz ; j++)
     {
         token=curr_line_node->tokenz[j];
-        for(i=0 ; dirc_type[i] != NULL ; i++)
+
+        if ((strstr(token, ".data") || strstr(token, ".string")))
         {
-            if (strstr(token, dirc_type[i]))
-            {
-                return TRUE;
-            }
+            return DATA_STRING_DIRC;
+        }
+        else  if (strstr(token, ".entry"))
+        {
+            return ENTRY_DIRC;
+        }
+        else  if (strstr(token, ".extern"))
+        {
+            return EXTERN_DIRC;
         }
     }
-
-    return FALSE;
+    return COMMAND_LINE;
 }
 
 char *get_label(line_node *curr_label_node)
@@ -51,6 +55,7 @@ bool is_label_decleration(line_node *curr_line_node)
         if(!isupper(token[first_char]))
         {
             print_error(curr_line_node->line_num, "first letter of label is not upper case.");
+            curr_line_node->error_flag = TRUE;
         }
 
         for(i=0 ; (strlen(token)) > i ; i++)
@@ -58,6 +63,7 @@ bool is_label_decleration(line_node *curr_line_node)
             if(!isalnum(token[i]) && !(token[i] == ':'))
             {
                 print_error(curr_line_node->line_num, "valid label contains only A-Z,a-z,0-9 characters.");
+                curr_line_node->error_flag = TRUE;
             }
         }
         return TRUE;
@@ -84,33 +90,6 @@ FILE *file_open(char *file_name, char *file_type, char *mode)
     printf("[ERROR] Argument:%s is not \"%s\" type. Skipping...\n", file_name, file_type);
     return NULL;
 }
-/*
-bool clear_q_marks(char **p_token)
-{
-    char *p_runer;
-
-    *p_token = strtok(*p_token, "\"");
-    p_runer = *p_token;
-
-    while (*p_runer!= '\0')
-    {
-        if (*p_runer == '"')
-        {
-            *p_runer = '\0';
-            return TRUE;
-        }
-        if (isalpha(*p_runer))
-        {
-            p_runer++;
-        }
-        else
-        {
-            return FALSE;
-        }
-    }
-    return TRUE;
-}
-*/
 
 void print_error(int line_num, const char *format, ...)
 {

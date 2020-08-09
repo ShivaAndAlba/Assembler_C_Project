@@ -86,44 +86,53 @@ void insert_string2data_list(int *DC, line_node *curr_line_node)
 {
     char *p_token = curr_line_node->tokenz[curr_line_node->tok_idx];
 
-    while (*p_token != '\0')
+    while (curr_line_node->tok_idx < curr_line_node->num_tokenz)
     {
-        if(*p_token != '"')
+        while (*p_token != '\0')
         {
-            if (isalpha(*p_token))
+            if(*p_token != '"')
             {
-                create_data_node(DC, (int)*p_token);
+                if (isalpha(*p_token))
+                {
+                    create_data_node(DC, (int)*p_token);
+                }
+                else
+                {
+                    curr_line_node->error_flag = TRUE;
+                    print_error(curr_line_node->line_num, "string data type allows only A-Z, a-z chars.");
+                }
             }
-            else
-            {
-                curr_line_node->error_flag = TRUE;
-                print_error(curr_line_node->line_num, "string data type allows only A-Z, a-z chars.");
-            }
+            p_token++;
         }
-        p_token++;
+        curr_line_node->tok_idx++;
     }
     create_data_node(DC, '\0');
 }
 
 void insert_int2data_list(int *DC, line_node *curr_line_node)
 {
+    char *delims = ", \t";
     char *p_token = curr_line_node->tokenz[curr_line_node->tok_idx];
+    char *token;
 
-    p_token = strtok(p_token, ",");
-
-    while(p_token != NULL)
+    while (curr_line_node->tok_idx < curr_line_node->num_tokenz)
     {
-        if (isdigit(*p_token) || *p_token == '-' || *p_token == '+')
+        token = strtok(p_token, delims);
+
+        while(token != NULL)
         {
-            create_data_node(DC, atoi(p_token));
-            (*DC)++;
+            if (isdigit(*token) || *token == '-' || *token == '+')
+            {
+                create_data_node(DC, atoi(token));
+            }
+            else if (isalpha(*token))
+            {
+                curr_line_node->error_flag = TRUE;
+                print_error(curr_line_node->line_num, "integer data type allows only 16,777,214 to -16,777,214, can be with '+' symbol.");
+            }
+            token = strtok(NULL, delims);
         }
-        else if (isalpha(*p_token))
-        {
-            curr_line_node->error_flag = TRUE;
-            print_error(curr_line_node->line_num, "integer data type allows only 16,777,214 to -16,777,214, can be with '+' symbol.");
-        }
-        p_token = strtok(NULL, ",");
+        p_token = curr_line_node->tokenz[++(curr_line_node->tok_idx)];
     }
 }
 
