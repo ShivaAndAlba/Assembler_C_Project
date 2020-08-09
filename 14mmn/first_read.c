@@ -57,7 +57,11 @@ void print_curr_label_node(label_node *curr_node)
 
     printf("\n");
 }
-
+/********************************************//**
+ * \brief here we pars data of directive line(string\data)
+ *
+ * \return Nonde
+ ***********************************************/
 void pars_data(line_node *curr_line_node, int *DC)
 {
     char *token_p = curr_line_node->tokenz[curr_line_node->tok_idx];
@@ -73,7 +77,11 @@ void pars_data(line_node *curr_line_node, int *DC)
         insert_int2data_list(DC, curr_line_node);
     }
 }
-
+/********************************************//**
+ * \brief creates a label struct and initializes
+ *
+ * \return None
+ ***********************************************/
 
 void insert_label(line_node *curr_line_node, char *type, int DC, bool extern_entry)
 {
@@ -94,7 +102,11 @@ void insert_label(line_node *curr_line_node, char *type, int DC, bool extern_ent
     curr_line_node->tok_idx++;
 }
 
-
+/********************************************//**
+ * \brief takes a set of tokens and creates, initializes line node with tokens set
+ *
+ * \return the newly created line node
+ ***********************************************/
 line_node *insert_set2line_list(line_node **line_node_head, int *line_count, char ***token_set, int *token_count)
 {
     line_node *new_line_node;
@@ -152,7 +164,7 @@ void insert_token2set(char *token, char ***token_set, int *tok_count, int *tok_s
 void tokenize_line(char ***token_set, char *tmp_line, int *tok_count)
 {
     char *token;
-    char *delims = " \t\n,";
+    char *delims = " \t\n";
     int tok_set_size=0;
 
     *tok_count=0;
@@ -166,6 +178,12 @@ void tokenize_line(char ***token_set, char *tmp_line, int *tok_count)
         (*tok_count)++;
     }
 }
+
+/********************************************//**
+ * \brief check if a line of assembly code is a comment or an empty line
+ *
+ * \return TRUE if it is else FALSE
+ ***********************************************/
 
 bool is_comment_empty(char *tmp_line, int *line_count)
 {

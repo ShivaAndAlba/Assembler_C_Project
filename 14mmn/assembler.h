@@ -49,8 +49,8 @@ typedef struct line{
 }line_node;
 
 /* == Global Variables == */
-img_node *g_inst_head;
-img_node *g_data_head;
+img_node *g_inst_head;      /* global pointer to instruction image*/
+img_node *g_data_head;      /* global pointer to data image       */
 
 
 

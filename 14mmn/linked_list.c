@@ -1,5 +1,9 @@
 #include "assembler.h"
-
+/********************************************//**
+ * \brief search for the end of linked list, create, initialize and insert a line_node
+ *
+ * \return newly created line_node
+ ***********************************************/
 line_node *create_line_node(line_node **head)
 {
     line_node *tail = *head;
@@ -34,7 +38,11 @@ line_node *create_line_node(line_node **head)
     tail->tok_idx = 0;
     return tail;
 }
-
+/********************************************//**
+ * \brief create and initialize label_node, label_node is attached to line_node struct
+ *
+ * \return None
+ ***********************************************/
 void create_label_node(line_node *curr_line_node)
 {
     label_node *new_node = malloc(sizeof(label_node));
@@ -50,7 +58,11 @@ void create_label_node(line_node *curr_line_node)
     new_node->label     = NULL;
     curr_line_node->label = new_node;
 }
-
+/********************************************//**
+ * \brief search for end of linked list of data, create and initialize a new node
+ *
+ * \return Node
+ ***********************************************/
 void create_data_node(int *DC, int tok_chr)
 {
     img_node *tail = g_data_head;
@@ -81,7 +93,11 @@ void create_data_node(int *DC, int tok_chr)
     tail->next_node = NULL;
     (*DC)++;
 }
-
+/********************************************//**
+ * \brief pars string data and a null char at the end and insert to data list
+ *
+ * \return None
+ ***********************************************/
 void insert_string2data_list(int *DC, line_node *curr_line_node)
 {
     char *p_token = curr_line_node->tokenz[curr_line_node->tok_idx];
@@ -108,7 +124,11 @@ void insert_string2data_list(int *DC, line_node *curr_line_node)
     }
     create_data_node(DC, '\0');
 }
-
+/********************************************//**
+ * \brief pars integer data and insert to data linked list
+ *
+ * \return None
+ ***********************************************/
 void insert_int2data_list(int *DC, line_node *curr_line_node)
 {
     char *delims = ", \t";
@@ -135,7 +155,11 @@ void insert_int2data_list(int *DC, line_node *curr_line_node)
         p_token = curr_line_node->tokenz[++(curr_line_node->tok_idx)];
     }
 }
-
+/********************************************//**
+ * \brief create instuction list
+ *
+ * \return newly created instruction list
+ ***********************************************/
 img_node *create_inst_node()
 {
     img_node *tail = g_inst_head;

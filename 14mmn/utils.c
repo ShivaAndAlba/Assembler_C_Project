@@ -1,5 +1,9 @@
 #include "assembler.h"
-
+/********************************************//**
+ * \brief a checker to determine dirctive type
+ *
+ * \return a macro of a type of action
+ ***********************************************/
 int dirc_type(line_node *curr_line_node)
 {
     int j;
@@ -26,7 +30,11 @@ int dirc_type(line_node *curr_line_node)
     }
     return COMMAND_LINE;
 }
-
+/********************************************//**
+ * \brief used to search for label in assembly code line
+ *
+ * \return pointer to the label else NULL
+ ***********************************************/
 char *get_label(line_node *curr_label_node)
 {
     int i;
@@ -43,7 +51,11 @@ char *get_label(line_node *curr_label_node)
     return NULL;
 }
 
-
+/********************************************//**
+ * \brief check to see if line has a label deceleration and if written correctly
+ *
+ * \return True if it does else False
+ ***********************************************/
 bool is_label_decleration(line_node *curr_line_node)
 {
     int i, first_char = 0;
@@ -70,7 +82,11 @@ bool is_label_decleration(line_node *curr_line_node)
     }
     return FALSE;
 }
-
+/********************************************//**
+ * \brief handle file opening
+ *
+ * \return pointer to opened file else NULL
+ ***********************************************/
 FILE *file_open(char *file_name, char *file_type, char *mode)
 {
     if (strstr((const char*)file_name, (const char*)file_type) != NULL)
@@ -90,7 +106,11 @@ FILE *file_open(char *file_name, char *file_type, char *mode)
     printf("[ERROR] Argument:%s is not \"%s\" type. Skipping...\n", file_name, file_type);
     return NULL;
 }
-
+/********************************************//**
+ * \brief print error formated message
+ *
+ * \return None
+ ***********************************************/
 void print_error(int line_num, const char *format, ...)
 {
 	va_list args;
