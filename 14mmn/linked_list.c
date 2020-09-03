@@ -30,6 +30,7 @@ line_node *create_line_node(line_node **head)
         tail = tail->next_node;
     }
     tail->label_flag = FALSE;
+    tail->label = NULL;
     tail->error_flag = FALSE;
     tail->line_num   = 0;
     tail->num_tokenz = 0;
@@ -160,7 +161,7 @@ void insert_int2data_list(int *DC, line_node *curr_line_node)
  *
  * \return newly created instruction list
  ***********************************************/
-img_node *create_inst_node()
+img_node *create_inst_node(int *IC)
 {
     img_node *tail = g_inst_head;
     img_node *new_node = malloc(sizeof(img_node));
@@ -185,8 +186,108 @@ img_node *create_inst_node()
         tail->next_node = new_node;
         tail = tail->next_node;
     }
-    tail->address = 0;
+    tail->address = (*IC);
     tail->data    = 0;
+    tail->next_node = NULL;
+    (*IC)++;
 
     return tail;
 }
+/********************************************//**
+ * \brief add addressing and register value to instruction words
+ *
+ * \return none
+ ***********************************************/
+void add_addressing_and_registers(img_node *curr_inst_node, int op_count, int adr_val, int reg_val)
+{
+    if (op_count == NO_OPERANDS)
+    {
+        curr_inst_node->data |= (TRUE << A_BIT);
+    }
+    if (op_count == FIRST_OP)
+    {
+        curr_inst_node->data |= (adr_val << ADD_DEST_BITS);
+        curr_inst_node->data |= (reg_val << REG_DEST_BITS);
+        curr_inst_node->data |= (TRUE << A_BIT);
+        return;
+    }
+    else if (op_count == SECOND_OP)
+    {
+        int five_bits = 5;
+        int add_dest_mask= 0x1800;
+        int reg_dest_mask= 0x700;
+        int add_dest_bits=0;
+        int reg_dest_bits=0;
+
+        add_dest_bits = curr_inst_node->data & add_dest_mask;
+        curr_inst_node->data ^= add_dest_bits;
+        curr_inst_node->data |= (add_dest_bits << five_bits);
+
+        reg_dest_bits = curr_inst_node->data & reg_dest_mask;
+        curr_inst_node->data ^= reg_dest_bits;
+        curr_inst_node->data |= (reg_dest_bits << five_bits);
+
+        curr_inst_node->data |= (adr_val << ADD_DEST_BITS);
+        curr_inst_node->data |= (reg_val << REG_DEST_BITS);
+        return;
+    }
+}
+
+/********************************************//**
+ * \brief add numbers defined as data to data list
+ *
+ * \return none
+ ***********************************************/
+void add_num2data_list(char *token, int *IC, int are_bit)
+{
+    img_node *new_img_node = create_inst_node(IC);
+    int num;
+
+    if (token == NULL)
+    {
+        return;
+    }
+
+    if (!isdigit(*token))
+    {
+        token++;
+    }
+    num = atoi(token);
+
+    new_img_node->data |= (num << DATA_BITS);
+
+    if (are_bit == NO_ARE_BITS_NEEDED)
+    {
+        return;
+    }
+    else
+    {
+        new_img_node->data |= (TRUE << are_bit);
+    }
+}
+
+/********************************************//**
+ * \brief creates a label struct and initializes
+ *
+ * \return None
+ ***********************************************/
+
+void insert_label(line_node *curr_line_node, char *type, int DC, bool extern_entry)
+{
+    label_node *curr_label_node = curr_line_node->label;
+    char *label_str;
+    int tok_idx = curr_line_node->tok_idx;
+
+    curr_label_node->address = DC;
+    if (!extern_entry)
+        label_str = get_label(curr_line_node);
+    else
+    {
+        label_str = curr_line_node->tokenz[++tok_idx];
+    }
+    curr_label_node->label = label_str;
+    curr_label_node->dirc_type = type;
+
+    curr_line_node->tok_idx++;
+}
+
