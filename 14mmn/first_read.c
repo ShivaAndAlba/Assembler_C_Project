@@ -367,7 +367,7 @@ void insert_token2set(char *token, char ***token_set, int *tok_count, int *tok_s
 void tokenize_line(char ***token_set, char *tmp_line, int *tok_count)
 {
     char *token;
-    char *delims = " \t\n";
+    char *delims = " ,\t\n";
     int tok_set_size=0;
 
     *tok_count=0;
@@ -461,7 +461,7 @@ void line_parser(line_node **line_list_head, char *tmp_line, int *line_count, in
     *error_count =+ curr_line_node->error_flag;
         /*  debug   */
     print_curr_line_node(curr_line_node);
-    printf("\n\n");
+    printf("\n");
 }
 
 

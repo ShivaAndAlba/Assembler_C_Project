@@ -1,5 +1,38 @@
 #include "assembler.h"
 
+void cpy_num2data_list(int num, img_node *new_img_node)
+{
+    if (num < 0)
+    {
+        num = (~num) << DATA_BITS;
+        new_img_node->data |= num;
+        new_img_node->data = (~new_img_node->data);
+        new_img_node->data &= ~(TRUE << A_BIT);
+        new_img_node->data &= ~(TRUE << R_BIT);
+        new_img_node->data &= ~(TRUE << E_BIT);
+    }
+    else
+    {
+        new_img_node->data |= (num << DATA_BITS);
+    }
+}
+
+bool is_external_label(label_node *label_list_head, char *token)
+{
+    label_node *curr_label_node;
+
+    curr_label_node = label_list_head;
+
+    while (curr_label_node != NULL)
+    {
+        if (!strcmp(curr_label_node->label, token) && !strcmp(curr_label_node->dirc_type, "extern"))
+        {
+            return TRUE;
+        }
+        curr_label_node = curr_label_node->next_node;
+    }
+    return FALSE;
+}
 
 /********************************************//**
  * \brief takes a set of tokens and creates, initializes line node with tokens set

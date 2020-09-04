@@ -47,11 +47,19 @@
 #define MAX_LINE_LEN            82
 #define MAX_LABEL_LEN           31
 #define NUM_CMD                 16
-#define FULL_WORD_LEN           24
+#define LAST_BIT                23
+#define DATA_WORD_LEN           20
 
 /*-- Data Structures -- */
 
 typedef unsigned int bool;
+
+typedef struct extrn{
+    int address;
+    char *label;
+
+    struct extrn *next_node;
+}extern_list;
 
 typedef struct img{
     int address : 24;
@@ -64,6 +72,8 @@ typedef struct label{
     char *label;
     int address;
     char *dirc_type;
+    bool entry_flag;
+    struct label *next_node;
 }label_node;
 
 typedef struct line{
@@ -102,11 +112,16 @@ img_node *g_data_head;      /* global pointer to data image              */
 /*--First Read --*/
 void first_read(FILE *file, line_node **line_head_list, int *error_cout, int *line_count, int *IC, int *DC);
 void update_label_address(line_node *line_list_head, int *IC);
+int op_type(line_node *line_list_head, line_node *curr_line_node, char *token);
 
 
 /*--Second Read --*/
+void second_read(line_node *line_head_list, extern_list **extern_list_head);
 
 /*-- Utilities  --*/
+void cpy_num2data_list(int num, img_node *new_img_node);
+bool is_external_label(label_node *label_list_head, char *token);
+bool is_label(char *token);
 void add_opcode_and_funct(int cmd_idx, img_node *curr_inst_node);
 int search_cmd(char *p_token);
 void insert_label(line_node *curr_line_node, char *type, int DC, bool extern_entry);
@@ -126,6 +141,8 @@ void load_file(char *file_name);
 FILE *file_open(char *file_name, char *file_type, char *mode);
 
 /*-- Linked_List --*/
+void create_extern_node(extern_list **extern_list_head, char *token, img_node *curr_inst_node);
+label_node *create_label_list(line_node *line_head_list);
 void add_num2data_list(char *token, int *IC, int are_bits);
 void insert_int2data_list(int *DC, line_node *curr_line_node);
 void insert_string2data_list(int *DC, line_node *curr_line_node);
@@ -139,4 +156,5 @@ img_node *create_inst_node(int *IC);
 void print_line_nodes(line_node *line_list_head);
 void print_data_list();
 void print_inst_node();
+void print_external_list(extern_list *extern_list_head);
 #endif

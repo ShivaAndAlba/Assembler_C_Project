@@ -1,4 +1,75 @@
 #include "assembler.h"
+void create_extern_node(extern_list **extern_list_head, char *token, img_node *curr_inst_node)
+{
+    extern_list *curr_extern_node;
+    extern_list *new_extern_node;
+
+    curr_extern_node = *extern_list_head;
+
+    if (curr_extern_node == NULL)
+    {
+        curr_extern_node = malloc(sizeof(extern_list));;
+
+        if(curr_extern_node == NULL)
+        {
+            printf("[ERROR] Failed to allocate memory for extern_node_list.\n");
+            exit(0);
+        }
+        *extern_list_head = curr_extern_node;
+    }
+    else
+    {
+        while (curr_extern_node->next_node != NULL)
+        {
+            curr_extern_node = curr_extern_node->next_node;
+        }
+
+        new_extern_node = malloc(sizeof(extern_list));
+        if(curr_extern_node == NULL)
+        {
+            printf("[ERROR] Failed to allocate memory for extern_node_list.\n");
+            exit(0);
+        }
+        curr_extern_node->next_node = new_extern_node;
+        curr_extern_node = curr_extern_node->next_node;
+    }
+
+    curr_extern_node->address = curr_inst_node->address;
+    curr_extern_node->label   = token;
+    curr_extern_node->next_node = NULL;
+
+}
+
+label_node *create_label_list(line_node *line_head_list)
+{
+    line_node *curr_line_node = line_head_list;
+    label_node *label_head_list = NULL;
+    label_node *label_curr_node = NULL;
+    label_node *label_prev_node = NULL;
+
+    while (curr_line_node != NULL)
+    {
+        if (curr_line_node->label != NULL)
+        {
+            if (label_head_list == NULL)
+            {
+                label_head_list  = curr_line_node->label;
+                label_curr_node = label_head_list;
+                label_prev_node = label_head_list;
+            }
+            else
+            {
+                label_prev_node = label_curr_node;
+                label_curr_node = curr_line_node->label;
+                label_prev_node->next_node = label_curr_node;
+            }
+        }
+
+        curr_line_node = curr_line_node->next_node;
+    }
+    return label_head_list;
+}
+
 /********************************************//**
  * \brief search for the end of linked list, create, initialize and insert a line_node
  *
@@ -54,10 +125,12 @@ void create_label_node(line_node *curr_line_node)
         exit(0);
     }
 
-    new_node->address   = 0;
-    new_node->dirc_type = NULL;
-    new_node->label     = NULL;
-    curr_line_node->label = new_node;
+    new_node->address       = 0;
+    new_node->dirc_type     = NULL;
+    new_node->label         = NULL;
+    new_node->entry_flag    = FALSE;
+    new_node->next_node     = NULL;
+    curr_line_node->label   = new_node;
 }
 /********************************************//**
  * \brief search for end of linked list of data, create and initialize a new node
@@ -253,8 +326,7 @@ void add_num2data_list(char *token, int *IC, int are_bit)
         token++;
     }
     num = atoi(token);
-
-    new_img_node->data |= (num << DATA_BITS);
+    cpy_num2data_list(num, new_img_node);
 
     if (are_bit == NO_ARE_BITS_NEEDED)
     {
