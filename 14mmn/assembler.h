@@ -29,26 +29,31 @@
 #define ADD_SRC_BITS    16
 #define OPCODE_BITS     18
 /* used to determine operand addressing type */
+#define NO_ADDRESSING_NEEDED        0
 #define IMMIDIATE_ADDRESSING        0
 #define DIRECT_ADDRESSING           1
 #define RELATIVE_ADDRESSING         2
 #define DIRECT_REGISTER_ADDRESSING  3
 /* used to determine operand count*/
-#define FIRST_OP 1
-#define SECOND_OP 2
-#define NO_REG_NEEDED 0
-#define NO_ARE_BITS_NEEDED -1
+#define FIRST_OP             1
+#define SECOND_OP            2
+#define NO_REG_NEEDED        0
+#define NO_ARE_BITS_NEEDED  -1
 /* used to describe word A,R,E bits already described*/
-#define DATA_BITS 3
+#define DATA_BITS       3
+#define DATA_WORD_LEN   20
 /* -- Constants -- */
-#define NO_OPERANDS             0
-#define NO_ADDRESSING_NEEDED    0
-#define ONE                     1
-#define MAX_LINE_LEN            82
-#define MAX_LABEL_LEN           31
-#define NUM_CMD                 16
-#define LAST_BIT                23
-#define DATA_WORD_LEN           20
+#define NO_OPERANDS     0
+#define ONE             1
+#define FOUR_BITS       4
+#define SIX_BYTES       6
+#define FILE_HEX_LEN    6
+#define FILE_INT_LEN    7
+#define NUM_CMD        16
+#define LAST_BIT       23
+#define MAX_LABEL_LEN  31
+#define MAX_LINE_LEN   82
+#define FIRST_ADDRESS  100
 
 /*-- Data Structures -- */
 
@@ -69,9 +74,9 @@ typedef struct img{
 }img_node;
 
 typedef struct label{
-    char *label;
-    int address;
-    char *dirc_type;
+    char *label;                /* label string     */
+    int address;                /* address integer  */
+    char *dirc_type;            /* type of directory*/
     bool entry_flag;
     struct label *next_node;
 }label_node;
@@ -95,10 +100,10 @@ typedef enum{
 }operands;
 
 typedef struct cmd{
-    char *cmd_name;
-    unsigned int cmd_code;
-    unsigned int cmd_func;
-    operands num_op;
+    char *cmd_name;         /* string of command        */
+    unsigned int cmd_code;  /* command op_code          */
+    unsigned int cmd_func;  /* command func_code        */
+    operands num_op;        /* enum of number operands  */
 }cmd_type;
 
 
@@ -116,7 +121,7 @@ int op_type(line_node *line_list_head, line_node *curr_line_node, char *token);
 
 
 /*--Second Read --*/
-void second_read(line_node *line_head_list, extern_list **extern_list_head);
+void second_read(line_node *line_head_list, extern_list **extern_list_head, label_node *label_head_list );
 
 /*-- Utilities  --*/
 void cpy_num2data_list(int num, img_node *new_img_node);
@@ -152,9 +157,4 @@ void create_label_node(line_node *);
 bool next_node(line_node *curr_node);
 img_node *create_inst_node(int *IC);
 
-/*debug*/
-void print_line_nodes(line_node *line_list_head);
-void print_data_list();
-void print_inst_node();
-void print_external_list(extern_list *extern_list_head);
 #endif

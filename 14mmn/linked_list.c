@@ -1,4 +1,10 @@
 #include "assembler.h"
+
+/********************************************//**
+ * \brief create external label list
+ *
+ * \return none
+ ***********************************************/
 void create_extern_node(extern_list **extern_list_head, char *token, img_node *curr_inst_node)
 {
     extern_list *curr_extern_node;
@@ -8,7 +14,7 @@ void create_extern_node(extern_list **extern_list_head, char *token, img_node *c
 
     if (curr_extern_node == NULL)
     {
-        curr_extern_node = malloc(sizeof(extern_list));;
+        curr_extern_node = (extern_list *)malloc(sizeof(extern_list));;
 
         if(curr_extern_node == NULL)
         {
@@ -24,7 +30,7 @@ void create_extern_node(extern_list **extern_list_head, char *token, img_node *c
             curr_extern_node = curr_extern_node->next_node;
         }
 
-        new_extern_node = malloc(sizeof(extern_list));
+        new_extern_node = (extern_list *)malloc(sizeof(extern_list));
         if(curr_extern_node == NULL)
         {
             printf("[ERROR] Failed to allocate memory for extern_node_list.\n");
@@ -40,6 +46,11 @@ void create_extern_node(extern_list **extern_list_head, char *token, img_node *c
 
 }
 
+/********************************************//**
+ * \brief create label list - go throug line list and connect all label struct to create a list
+ *
+ * \return whole list of label - label list head
+ ***********************************************/
 label_node *create_label_list(line_node *line_head_list)
 {
     line_node *curr_line_node = line_head_list;
@@ -78,7 +89,7 @@ label_node *create_label_list(line_node *line_head_list)
 line_node *create_line_node(line_node **head)
 {
     line_node *tail = *head;
-    line_node *new_node = malloc(sizeof(line_node));
+    line_node *new_node = (line_node *)malloc(sizeof(line_node));
 
     if (new_node == NULL)
     {
@@ -117,7 +128,7 @@ line_node *create_line_node(line_node **head)
  ***********************************************/
 void create_label_node(line_node *curr_line_node)
 {
-    label_node *new_node = malloc(sizeof(label_node));
+    label_node *new_node = (label_node *)malloc(sizeof(label_node));
 
     if (new_node == NULL)
     {
@@ -140,7 +151,7 @@ void create_label_node(line_node *curr_line_node)
 void create_data_node(int *DC, int tok_chr)
 {
     img_node *tail = g_data_head;
-    img_node *new_node = malloc(sizeof(img_node));
+    img_node *new_node = (img_node *)malloc(sizeof(img_node));
 
     if (new_node == NULL)
     {
@@ -237,7 +248,7 @@ void insert_int2data_list(int *DC, line_node *curr_line_node)
 img_node *create_inst_node(int *IC)
 {
     img_node *tail = g_inst_head;
-    img_node *new_node = malloc(sizeof(img_node));
+    img_node *new_node = (img_node *)malloc(sizeof(img_node));
 
     if (new_node == NULL)
     {

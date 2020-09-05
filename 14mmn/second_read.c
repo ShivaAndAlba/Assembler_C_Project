@@ -1,32 +1,10 @@
 #include "assembler.h"
-void print_external_list(extern_list *extern_list_head)
-{
-    extern_list *curr_node = extern_list_head;
 
-    while (curr_node != NULL)
-    {
-        printf("address:%d | label:%s\n",curr_node->address, curr_node->label);
-
-        curr_node = curr_node->next_node;
-    }
-}
-
-
-/*for debug*/
-void print_label_list(label_node *label_head_list)
-{
-    label_node *curr_node = label_head_list;
-
-    while(curr_node != NULL)
-    {
-        printf("address:%d | dirc_type:%s | entry_flag:%d | label:%s\n",curr_node->address,curr_node->dirc_type,curr_node->entry_flag,curr_node->label);
-
-        curr_node = curr_node->next_node;
-    }
-}
-
-
-
+/********************************************//**
+ * \brief search for label in label list
+ *
+ * \return found label or null
+ ***********************************************/
 label_node *find_label(label_node *label_head_list, char *token)
 {
     label_node *curr_label_node;
@@ -45,6 +23,11 @@ label_node *find_label(label_node *label_head_list, char *token)
     return curr_label_node;
 }
 
+/********************************************//**
+ * \brief relative addressing instruction image update - find relative address of label and add it to instruction
+ *          image and turn on A bit
+ * \return
+ ***********************************************/
 void relat_addr_inst_update(img_node *curr_inst_node, label_node *label_head_list, char *token, int relative_cmd_line_addr)
 {
     int relative_addr = 0;
@@ -57,6 +40,11 @@ void relat_addr_inst_update(img_node *curr_inst_node, label_node *label_head_lis
     curr_inst_node->data |= (TRUE << A_BIT);
 }
 
+/********************************************//**
+ * \brief update instruction image if label is code\data and address of label
+ *
+ * \return none
+ ***********************************************/
 void update_inst(label_node *label_node, img_node *curr_inst_node)
 {
     if (( !strcmp(label_node->dirc_type, "code") || !strcmp(label_node->dirc_type, "data") ))
@@ -66,6 +54,11 @@ void update_inst(label_node *label_node, img_node *curr_inst_node)
     curr_inst_node->data |= (label_node->address << DATA_BITS);
 }
 
+/********************************************//**
+ * \brief find label and add instruction
+ *
+ * \return TRUE if label was not found FALSE if label was found
+ ***********************************************/
 bool direct_addr_inst_update(label_node *label_head_list, img_node *curr_inst_node, char *token)
 {
     label_node *label_node;
@@ -82,12 +75,16 @@ bool direct_addr_inst_update(label_node *label_head_list, img_node *curr_inst_no
     return FALSE;
 }
 
-void second_read(line_node *line_head_list, extern_list **extern_list_head){
+/********************************************//**
+ * \brief handels all second read instruction
+ *
+ * \return None
+ ***********************************************/
+void second_read(line_node *line_head_list, extern_list **extern_list_head, label_node *label_head_list ){
 
     char* entry_label = NULL;
     bool entry_found = FALSE;
     line_node *curr_line_node;
-    label_node *label_head_list;
     label_node *curr_label_node;
     img_node *curr_inst_node;
     int op_count = 0;
@@ -96,11 +93,7 @@ void second_read(line_node *line_head_list, extern_list **extern_list_head){
 
     curr_inst_node = g_inst_head;
 
-    /*here we create a label linked list to gain some efficiency when searching for label*/
     curr_line_node = line_head_list;
-    label_head_list = create_label_list(line_head_list);
-
-    print_label_list(label_head_list);
 
     /* start search in line node list */
     while (curr_line_node != NULL){

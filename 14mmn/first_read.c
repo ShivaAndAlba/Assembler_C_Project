@@ -18,81 +18,24 @@ const cmd_type cmd_array[NUM_CMD] = {
     {"rts" , 14, 0, No_operand},
     {"stop", 15, 0, No_operand}
 };
-/** for debug **/
-void print_inst_node()
-{
-    img_node *curr_node = g_inst_head;
 
-    printf("instructions:\n");
-    while ( curr_node != NULL)
+/********************************************//**
+ * \brief updates data address
+ *
+ * \return none
+ ***********************************************/
+void update_data_address(int IC)
+{
+    img_node *curr_data_node;
+    curr_data_node = g_data_head;
+
+    while(curr_data_node != NULL)
     {
-        printf("address:%d | data:%.6x\n",curr_node->address, curr_node->data);
-        curr_node = curr_node->next_node;
+        curr_data_node->address += (IC + 1);
+
+        curr_data_node = curr_data_node->next_node;
     }
-}
 
-/** for debug **/
-void print_data_list()
-{
-    img_node *curr = g_data_head;
-    while(curr != NULL)
-    {
-        printf("data: %d | address: %d\n",curr->data, curr->address);
-        curr = curr->next_node;
-    }
-}
-/** for debug **/
-void print_line_nodes(line_node *line_list_head)
-{
-    char **tokenz;
-    int i;
-    line_node *curr_node = line_list_head;
-
-    printf("line nodes:\n");
-    while(curr_node != NULL)
-    {
-        printf("line:%d ; ",curr_node->line_num);
-        tokenz = curr_node->tokenz;
-        for (i=0;curr_node->num_tokenz > i;i++ )
-        {
-            printf("[%s] ", tokenz[i]);
-        }
-
-        if (curr_node->label_flag)
-        {
-            printf("\naddress: %d | dirc_type: %s | label:%s\n",curr_node->label->address,curr_node->label->dirc_type,curr_node->label->label);
-        }
-        printf("\n");
-
-        curr_node = curr_node->next_node;
-    }
-}
-/** for debug **/
-void print_curr_line_node(line_node *curr_node)
-{
-    char **tokenz;
-    int i;
-
-    printf("line:%d | ",curr_node->line_num);
-    tokenz = curr_node->tokenz;
-    for (i=0;curr_node->num_tokenz > i;i++ )
-    {
-        printf("[%s] ", tokenz[i]);
-    }
-    printf(" | num_tokenz:%d  ",curr_node->num_tokenz);
-    printf(" | label_flag:%d  ",curr_node->label_flag);
-    printf(" | error_flag:%d  ",curr_node->error_flag);
-
-    printf("\n");
-}
-/** for debug **/
-void print_curr_label_node(label_node *curr_node)
-{
-    printf("address:%d ",curr_node->address);
-    printf(" | dirc_type:%s  ",curr_node->dirc_type);
-    printf(" | label:%s  ",curr_node->label);
-
-    printf("\n");
 }
 
 /********************************************//**
@@ -100,7 +43,6 @@ void print_curr_label_node(label_node *curr_node)
  *
  * \return none
  ***********************************************/
-
 void update_label_address(line_node *line_list_head, int *IC)
 {
     line_node *curr_node = line_list_head;
@@ -183,6 +125,7 @@ int op_type(line_node *line_list_head, line_node *curr_line_node, char *token)
     }
     return -1;
 }
+
 /********************************************//**
  * \brief function to parsing operands, for each operand determine addressing and input into instruction word
  *
@@ -195,8 +138,10 @@ void pars_oprnd(line_node *line_list_head, line_node *curr_line_node,img_node *c
     char *empty_token = NULL;
     char *cmd_name = NULL;
 
+    /*while there is operands*/
     while (curr_line_node->num_tokenz > curr_line_node->tok_idx)
     {
+        /*take next token*/
         token = curr_line_node->tokenz[curr_line_node->tok_idx];
         token = strtok(token, ",\0");
 
@@ -212,19 +157,16 @@ void pars_oprnd(line_node *line_list_head, line_node *curr_line_node,img_node *c
             switch (op_type(line_list_head, curr_line_node, token))
             {
                 case IMMIDIATE_ADDRESSING:
-                    printf("IMMIDIATE_ADDRESSING\n");
                     add_addressing_and_registers(curr_inst_node, op_count, IMMIDIATE_ADDRESSING, NO_REG_NEEDED);
                     add_num2data_list(token, IC, A_BIT);
                     break;
 
                 case DIRECT_ADDRESSING:
-                    printf("DIRECT_ADDRESSING\n");
                     add_addressing_and_registers(curr_inst_node, op_count, DIRECT_ADDRESSING, NO_REG_NEEDED);
                     add_num2data_list(empty_token, IC, NO_ARE_BITS_NEEDED);
                     break;
 
                 case RELATIVE_ADDRESSING:
-                    printf("RELATIVE_ADDRESSING\n");
                     cmd_name = cmd_array[cmd_idx].cmd_name;
 
                     if (!strcmp(cmd_name, "jsr") || !strcmp(cmd_name, "bne") || !strcmp(cmd_name, "jmp"))
@@ -234,13 +176,12 @@ void pars_oprnd(line_node *line_list_head, line_node *curr_line_node,img_node *c
                     }
                     else
                     {
-                        print_error(curr_line_node->line_num,"invalid command used with relative addressing.");
+                        print_error(curr_line_node->line_num,"invalid command:%s used with relative addressing.", cmd_name);
                         curr_line_node->error_flag = TRUE;
                     }
                     break;
 
                 case DIRECT_REGISTER_ADDRESSING:
-                    printf("DIRECT_REGISTER_ADDRESSING\n");
                     add_addressing_and_registers(curr_inst_node, op_count, DIRECT_REGISTER_ADDRESSING, atoi(++token));
                     break;
 
@@ -256,6 +197,7 @@ void pars_oprnd(line_node *line_list_head, line_node *curr_line_node,img_node *c
         curr_line_node->error_flag = TRUE;
         return;
     }
+    /*for command with no operands*/
     if (op_count == 0)
     {
         add_addressing_and_registers(curr_inst_node, op_count, NO_ADDRESSING_NEEDED, NO_REG_NEEDED);
@@ -264,8 +206,8 @@ void pars_oprnd(line_node *line_list_head, line_node *curr_line_node,img_node *c
 }
 
 /********************************************//**
- * \brief here we pars instructions
- *
+ * \brief search for command and if valid command with enough operands then add opcode and func code
+ *          then pars operands
  * \return Nonde
  ***********************************************/
 void pars_inst(line_node *line_list_head, line_node *curr_line_node, int *IC)
@@ -304,7 +246,7 @@ void pars_inst(line_node *line_list_head, line_node *curr_line_node, int *IC)
 }
 
 /********************************************//**
- * \brief here we pars data of directive line(string\data)
+ * \brief pars data of directive line(string\data) and insert to data list
  *
  * \return Nonde
  ***********************************************/
@@ -333,7 +275,7 @@ void pars_data(line_node *curr_line_node, int *DC)
 void insert_token2set(char *token, char ***token_set, int *tok_count, int *tok_set_size)
 {
     char **token_set_new;
-    char *token_new = malloc(sizeof(char) * ((strlen(token) + 1)));;
+    char *token_new = (char *)malloc(sizeof(char) * ((strlen(token) + 1)));;
 
     if (!token_new)
     {
@@ -398,11 +340,13 @@ void line_parser(line_node **line_list_head, char *tmp_line, int *line_count, in
     int token_count = 0;
     line_node *curr_line_node;
 
+    /*go to next line if comment or empty line*/
     if(is_comment_empty(tmp_line, line_count))
     {
         return;
     }
 
+    /*create from line token and save to line_node*/
     tokenize_line(&token_set, tmp_line, &token_count);
     curr_line_node = insert_set2line_list(line_list_head, line_count, &token_set, &token_count);
 
@@ -411,21 +355,17 @@ void line_parser(line_node **line_list_head, char *tmp_line, int *line_count, in
         curr_line_node->label_flag = TRUE;
     }
 
-
+    /*analyze directory types*/
     switch (dirc_type(curr_line_node))
     {
         case DATA_STRING_DIRC:
+            /*data line with label insert to global data list with "data" directory type of label*/
             if(curr_line_node->label_flag)
             {
                 create_label_node(curr_line_node);
                 insert_label(curr_line_node, "data", *DC, FALSE);
-
-                    /* debug */
-                printf("\n");
-                print_curr_label_node(curr_line_node->label);
-                printf("\n");
             }
-
+            /*data line with label insert to global data list*/
             pars_data(curr_line_node, DC);
             break;
 
@@ -433,38 +373,25 @@ void line_parser(line_node **line_list_head, char *tmp_line, int *line_count, in
             break;
 
         case EXTERN_DIRC:
+            /*external label decleration create label node with extern directory type*/
             create_label_node(curr_line_node);
             insert_label(curr_line_node, "extern", 0, TRUE);
-
-                        /* debug */
-            printf("\n");
-            print_curr_label_node(curr_line_node->label);
-            printf("\n");
             break;
 
         case COMMAND_LINE:
+            /*command line with label decleration crate label with code directory type*/
             if (curr_line_node->label_flag)
             {
                 create_label_node(curr_line_node);
                 insert_label(curr_line_node, "code", *IC, FALSE);
-
-                    /* debug */
-                printf("\n");
-                print_curr_label_node(curr_line_node->label);
-                printf("\n");
             }
-
+            /*pars instruction*/
             pars_inst(*line_list_head, curr_line_node, IC);
             break;
     }
 
-    *error_count =+ curr_line_node->error_flag;
-        /*  debug   */
-    print_curr_line_node(curr_line_node);
-    printf("\n");
+    *error_count += curr_line_node->error_flag;
 }
-
-
 
 /********************************************//**
  * \brief read_line - reads a line from file of max length, replacing new line char with null char
@@ -531,4 +458,6 @@ void first_read(FILE *file, line_node **line_list_head, int *error_count, int *l
             ++(*error_count);
         }
     }
+    update_data_address(*IC);
+    update_label_address(*line_list_head, IC);
 }

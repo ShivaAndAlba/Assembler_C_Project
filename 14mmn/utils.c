@@ -1,5 +1,10 @@
 #include "assembler.h"
 
+/********************************************//**
+ * \brief copy number to data list
+ *
+ * \return none
+ ***********************************************/
 void cpy_num2data_list(int num, img_node *new_img_node)
 {
     if (num < 0)
@@ -17,6 +22,11 @@ void cpy_num2data_list(int num, img_node *new_img_node)
     }
 }
 
+/********************************************//**
+ * \brief check if label is external
+ *
+ * \return true if it is else false
+ ***********************************************/
 bool is_external_label(label_node *label_list_head, char *token)
 {
     label_node *curr_label_node;
@@ -326,7 +336,7 @@ FILE *file_open(char *file_name, char *file_type, char *mode)
         }
         else
         {
-            printf("[INFO] Successfully opened file:%s.as\n",file_name);
+            printf("[INFO] Successfully opened file:%s\n",file_name);
             return file;
         }
     }
