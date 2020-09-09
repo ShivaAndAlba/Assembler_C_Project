@@ -1,4 +1,12 @@
 #include "assembler.h"
+/********************************************//**
+ * linked_list manages all linked list operations
+ *
+ * written by:
+ *  George Mirsoyan - 309096485
+ *  Kiril Bedohin   - 317181709
+ ***********************************************/
+
 
 /********************************************//**
  * \brief create external label list

@@ -1,5 +1,15 @@
 #include "assembler.h"
 
+/********************************************//**
+ * main fail manages first, second read and file I\O
+ *
+ * written by:
+ *  George Mirsoyan - 309096485
+ *  Kiril Bedohin   - 317181709
+ ***********************************************/
+
+
+
 void free_data()
 {
     free(g_inst_head);
@@ -211,13 +221,19 @@ int main(int argc, char *argv[])
             }
             else
             {
-                /*second read*/
-                printf("[INFO] Starting second read...\n");
-                second_read(line_list_head, &extern_list_head, label_head_list);
+                    /*second read*/
+                    printf("[INFO] Starting second read...\n");
+                    second_read(line_list_head, &extern_list_head, label_head_list, &error_cout);
 
-                /*print files here*/
-                create_files(extern_list_head, label_head_list, argv[i], IC, DC);
-                printf("[INFO] Finished parsing file:%s\n",argv[i]);
+                if (error_cout > 0){
+                    printf("[INFO] Errors found on second read.\nExiting...\n");
+                }
+                else
+                {
+                    /*print files here*/
+                    create_files(extern_list_head, label_head_list, argv[i], IC, DC);
+                    printf("[INFO] Finished parsing file:%s\n",argv[i]);
+                }
             }
         }
         fclose(file);

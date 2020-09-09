@@ -178,16 +178,20 @@ bool is_label(char *token)
  *
  * \return TRUE if it is else FALSE
  ***********************************************/
-bool is_relative_addressing(char *token)
+bool is_relative_addressing(line_node *curr_line_node, char *token)
 {
     bool result = FALSE;
     char *tmp_ptr = token;
 
     if (*tmp_ptr == '&')
     {
-
         result = TRUE;
         result = is_label((++tmp_ptr));
+        if(result == FALSE)
+        {
+            print_error(curr_line_node->line_num,"label and & should be linked together.");
+            curr_line_node->error_flag=TRUE;
+        }
     }
     return result;
 }
@@ -208,7 +212,7 @@ bool is_direct_addressing(char *token)
  *
  * \return TRUE if it is else FALSE
  ***********************************************/
-bool is_immidiate_addressing(char *token)
+bool is_immidiate_addressing(line_node *curr_line_node, char *token)
 {
 
     bool result = FALSE;
@@ -230,6 +234,11 @@ bool is_immidiate_addressing(char *token)
                 break;
             }
             tmp_ptr++;
+        }
+        if(strlen(token) < 2)
+        {
+            print_error(curr_line_node->line_num,"immidiate addressing operands must be without spaces.");
+            curr_line_node->error_flag = TRUE;
         }
     }
     return result;
@@ -315,6 +324,19 @@ bool is_label_decleration(line_node *curr_line_node)
                 curr_line_node->error_flag = TRUE;
             }
         }
+        for (i=0 ; i < NUM_CMD ; i++)
+        {
+            if (strstr(token, cmd_array[i].cmd_name))
+            {
+                print_error(curr_line_node->line_num, "label name can't be a command name.");
+                curr_line_node->error_flag = TRUE;
+            }
+        }
+        if (*token == 'r' && atoi(token + 1) >= 0 && atoi(token + 1) <8 )
+        {
+            print_error(curr_line_node->line_num, "label name can't be a register 0-7.");
+            curr_line_node->error_flag = TRUE;
+        }
         return TRUE;
     }
     return FALSE;
@@ -331,7 +353,7 @@ FILE *file_open(char *file_name, char *file_type, char *mode)
         FILE *file =fopen(file_name, mode);
         if (file == NULL)
         {
-            printf("[ERROR] File:%s failed to open\n.",file_name);
+            printf("[ERROR] File:%s failed to open.\n",file_name);
             return  NULL;
         }
         else

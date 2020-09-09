@@ -1,5 +1,13 @@
-#include "assembler.h"
 
+/********************************************//**
+ * first read manages line reading, line parsing and creating data table, instructions table, label table.
+ *
+ * written by:
+ *  George Mirsoyan - 309096485
+ *  Kiril Bedohin   - 317181709
+ ***********************************************/
+
+#include "assembler.h"
 const cmd_type cmd_array[NUM_CMD] = {
     {"mov" ,  0, 0, Two_operand},
     {"cmp" ,  1, 0, Two_operand},
@@ -18,7 +26,6 @@ const cmd_type cmd_array[NUM_CMD] = {
     {"rts" , 14, 0, No_operand},
     {"stop", 15, 0, No_operand}
 };
-
 /********************************************//**
  * \brief updates data address
  *
@@ -101,7 +108,7 @@ void add_opcode_and_funct(int cmd_idx, img_node *curr_inst_node)
  ***********************************************/
 int op_type(line_node *line_list_head, line_node *curr_line_node, char *token)
 {
-    if (is_immidiate_addressing(token))
+    if (is_immidiate_addressing(curr_line_node, token))
     {
         return IMMIDIATE_ADDRESSING;
     }
@@ -109,7 +116,7 @@ int op_type(line_node *line_list_head, line_node *curr_line_node, char *token)
     {
         return DIRECT_ADDRESSING;
     }
-    if (is_relative_addressing(token))
+    if (is_relative_addressing(curr_line_node, token))
     {
         if (is_label_ext(line_list_head, ++token))
         {

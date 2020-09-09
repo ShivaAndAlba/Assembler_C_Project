@@ -1,3 +1,12 @@
+/********************************************//**
+ * second read finishes external words, entry directories, label addresses
+ *
+ * written by:
+ *  George Mirsoyan - 309096485
+ *  Kiril Bedohin   - 317181709
+ ***********************************************/
+
+
 #include "assembler.h"
 
 /********************************************//**
@@ -80,7 +89,7 @@ bool direct_addr_inst_update(label_node *label_head_list, img_node *curr_inst_no
  *
  * \return None
  ***********************************************/
-void second_read(line_node *line_head_list, extern_list **extern_list_head, label_node *label_head_list ){
+void second_read(line_node *line_head_list, extern_list **extern_list_head, label_node *label_head_list, int *error_count){
 
     char* entry_label = NULL;
     bool entry_found = FALSE;
@@ -194,6 +203,10 @@ void second_read(line_node *line_head_list, extern_list **extern_list_head, labe
                 curr_line_node = curr_line_node -> next_node;
                 break;
 
+        }
+        if (curr_line_node != NULL)
+        {
+            *error_count += curr_line_node->error_flag;
         }
     }
 }

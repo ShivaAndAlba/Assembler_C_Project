@@ -1,3 +1,9 @@
+/********************************************//**
+ * written by:
+ *  George Mirsoyan - 309096485
+ *  Kiril Bedohin   - 317181709
+ ***********************************************/
+
 #ifndef ASSEMBLER_H
 	#define ASSEMBLER_H
 
@@ -56,6 +62,20 @@
 #define FIRST_ADDRESS  100
 
 /*-- Data Structures -- */
+typedef enum{
+    No_operand ,
+    One_operand ,
+    Two_operand
+}operands;
+
+typedef struct cmd{
+    char *cmd_name;         /* string of command        */
+    unsigned int cmd_code;  /* command op_code          */
+    unsigned int cmd_func;  /* command func_code        */
+    operands num_op;        /* enum of number operands  */
+}cmd_type;
+
+extern const cmd_type cmd_array[];
 
 typedef unsigned int bool;
 
@@ -93,20 +113,6 @@ typedef struct line{
    struct line *next_node;
 }line_node;
 
-typedef enum{
-    No_operand ,
-    One_operand ,
-    Two_operand
-}operands;
-
-typedef struct cmd{
-    char *cmd_name;         /* string of command        */
-    unsigned int cmd_code;  /* command op_code          */
-    unsigned int cmd_func;  /* command func_code        */
-    operands num_op;        /* enum of number operands  */
-}cmd_type;
-
-
 /* == Global Variables == */
 img_node *g_inst_head;      /* global pointer to instruction image       */
 img_node *g_data_head;      /* global pointer to data image              */
@@ -121,7 +127,7 @@ int op_type(line_node *line_list_head, line_node *curr_line_node, char *token);
 
 
 /*--Second Read --*/
-void second_read(line_node *line_head_list, extern_list **extern_list_head, label_node *label_head_list );
+void second_read(line_node *line_head_list, extern_list **extern_list_head, label_node *label_head_list, int *error_count );
 
 /*-- Utilities  --*/
 void cpy_num2data_list(int num, img_node *new_img_node);
@@ -135,8 +141,8 @@ bool is_comment_empty(char *tmp_line, int *line_count);
 void add_addressing_and_registers(img_node *curr_inst_node, int op_count, int adr_val, int reg_val);
 bool is_register_addressing(line_node *curr_line_node, char *token);
 bool is_label_ext(line_node *line_list_head, char *token);
-bool is_relative_addressing(char *token);
-bool is_immidiate_addressing(char *token);
+bool is_relative_addressing(line_node *line_list_head, char *token);
+bool is_immidiate_addressing(line_node *curr_line_node, char *token);
 bool is_direct_addressing(char *token);
 char *get_label(line_node *curr_line_node);
 int dirc_type(line_node *curr_line_node);
